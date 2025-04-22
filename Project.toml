@@ -1,0 +1,10 @@
+name = "PGA3D"
+uuid = "c8088a5c-1754-4275-a93e-9fb112a4f0ac"
+authors = ["m410y <m410y@proton.me>"]
+version = "0.1.0"
+
+[deps]
+LinearAlgebra = "37e2e46d-f89d-539d-b4ee-838fcccc9c8e"
+
+[compat]
+LinearAlgebra = "1"

@@ -1,4 +1,4 @@
-export plane, point, direction
+export plane, point, direction, rotaxis
 
 plane(a::Real, b::Real, c::Real, d::Real) = Vec(a, b, c, d)
 point(x::Real, y::Real, z::Real, w::Real = 1) = PVec(x, y, z, w)
@@ -11,9 +11,7 @@ function direction(v::AbstractVector)
     @assert length(v) == 3
     point(v..., 0)
 end
-line(vx::Real, vy::Real, vz::Real, px::Real, py::Real, pz::Real) = BiVec(vx, vy, vz, px, py, pz)
-function line(v::AbstractVector, p::AbstractVector)
-    @assert length(v) == length(p) == 3
-    BiVec(v..., p...)
-end
-axis(vx::Real, vy::Real, vz::Real) = line(vx, vy, vz, 0, 0, 0)
+rotaxis(vx::Real, vy::Real, vz::Real, px::Real, py::Real, pz::Real) = normalize(direction(vx, vy, vz)) ∨ point(px, py, pz)
+rotaxis(vx::Real, vy::Real, vz::Real) = normalize(direction(vx, vy, vz)) ∨ point(0, 0, 0)
+rotaxis(v::AbstractVector, p::AbstractVector) = normalize(direction(v)) ∨ point(p)
+rotaxis(v::AbstractVector) = normalize(direction(v)) ∨ point(0, 0, 0)

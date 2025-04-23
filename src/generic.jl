@@ -9,6 +9,18 @@ for type in keys(type_grade), op in (:+, :-)
         end...)
 end
 
+for type in keys(type_grade)
+    @eval @generated *(m::$type, x::Real) = Expr(:call, $type, map(fieldnames($type)) do field
+        :(m.$field * x)
+    end...)
+    @eval @generated *(x::Real, m::$type) = Expr(:call, $type, map(fieldnames($type)) do field
+        :(x * m.$field)
+    end...)
+    @eval @generated /(m::$type, x::Real) = Expr(:call, $type, map(fieldnames($type)) do field
+        :(m.$field / x)
+    end...)
+end
+
 function _basisreduce(arr::Vector{Char})
     count = zeros(Int8, D)
     if isempty(arr)

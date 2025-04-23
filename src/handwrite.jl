@@ -9,11 +9,11 @@ Base.inv(m::AbstractMVec) = ~m / abs2(m)
 
 # exponentiation
 function Base.exp(v::Vec{T}) where {T}
-    s = sqrt(abs2(v))
+    s = abs(v)
     iszero(s) ? one(T) : cosh(s) + v * sinh(s) / s
 end
 function Base.exp(B::BiVec{T}) where {T}
-    s = sqrt(-abs2(B))
+    s = abs(B)
     p = B ∧ B / 2
     cos(s) + B * sinc(s / π) - B * p * cosc(s / π) / π + p * sinc(s / π)
 end

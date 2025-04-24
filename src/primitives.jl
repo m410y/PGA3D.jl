@@ -1,8 +1,8 @@
-export plane, point, direction, rotaxis
+export coords, plane, point, direction, rotaxis
 
 function coords(V::PVec)
-    vect = [V.e032, V.e013, V.e021]
-    iszero(V.e123) ? vect : vect / V.e123
+    vect = [getfield(V, i) for i in 1:D-1]
+    iszero(getfield(V, D)) ? vect : vect / getfield(V, D)
 end
 
 plane(a::Real, b::Real, c::Real, d::Real) = Vec(a, b, c, d)

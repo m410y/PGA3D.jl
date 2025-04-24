@@ -19,7 +19,7 @@ for (type, grade) in type_grade
 
     if length(grade_basis(grade)) > 1
         @eval $type(args::Vararg{Real,fieldcount($type)}) =
-            $type{promote_type(typeof.(args)...)}(args...)
+            $type(promote(args...)...)
             
         @eval $type(x::T) where {T<:Real} = $type{T}(x)
         @eval $type{T}(x::Real) where {T<:Real} = $type{T}(

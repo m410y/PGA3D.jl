@@ -1,11 +1,5 @@
-export coords, plane, point, direction, rotaxis
+export plane, point, direction, rotaxis
 
-function coords(V::PVec)
-    vect = [getfield(V, i) for i in 1:D-1]
-    iszero(getfield(V, D)) ? vect : vect / getfield(V, D)
-end
-
-plane(a::Real, b::Real, c::Real, d::Real) = Vec(a, b, c, d)
 point(x::Real, y::Real, z::Real, w::Real = 1) = PVec(x, y, z, w)
 function point(p::AbstractVector)
     @assert length(p) == 3

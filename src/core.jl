@@ -20,15 +20,14 @@ for (type, grade) in type_grade
     if length(grade_basis(grade)) > 1
         @eval $type(args::Vararg{Real,fieldcount($type)}) =
             $type{promote_type(typeof.(args)...)}(args...)
-        if 0 in grade
-            @eval $type(x::T) where {T<:Real} = $type{T}(x)
-            @eval $type{T}(x::Real) where {T<:Real} = $type{T}(
-                (
-                    field == Symbol(basis_char) ? x : zero(T) for
-                    field in fieldnames($type)
-                )...,
-            )
-        end
+            
+        @eval $type(x::T) where {T<:Real} = $type{T}(x)
+        @eval $type{T}(x::Real) where {T<:Real} = $type{T}(
+            (
+                field == Symbol(basis_char) ? x : zero(T) for
+                field in fieldnames($type)
+            )...,
+        )
     end
     @eval $type(m::AbstractMVec{T}) where {T} = $type{T}(m)
     @eval $type{T}(m::M) where {T<:Real,M<:AbstractMVec} = $type{T}(

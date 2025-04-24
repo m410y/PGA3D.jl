@@ -1,5 +1,10 @@
 export plane, point, direction, rotaxis
 
+function coords(V::PVec)
+    vect = [V.e032, V.e013, V.e021]
+    iszero(V.e123) ? vect : vect / V.e123
+end
+
 plane(a::Real, b::Real, c::Real, d::Real) = Vec(a, b, c, d)
 point(x::Real, y::Real, z::Real, w::Real = 1) = PVec(x, y, z, w)
 function point(p::AbstractVector)

@@ -1,24 +1,20 @@
+export ⋆, ⋅, ∧, ×, ∨
+
 # addition and subtraction
 for type in keys(type_grade), op in (:+, :-)
-    @eval @generated $op(m::$type) = Expr(:call, $type, map(fieldnames($type)) do field
-        :($$op(m.$field))
-    end...)
-    @eval @generated $op(m1::$type, m2::$type) =
-        Expr(:call, $type, map(fieldnames($type)) do field
-            :($$op(m1.$field, m2.$field))
-        end...)
+    @eval $op(m::$type) = $type(($op(getfield(m, field)) for field in fieldnames($type))...)
+    @eval $op(m1::$type, m2::$type) = $type(
+        ($op(getfield(m1, field), getfield(m2, field)) for field in fieldnames($type))...,
+    )
 end
 
 for type in keys(type_grade)
-    @eval @generated *(m::$type, x::Real) = Expr(:call, $type, map(fieldnames($type)) do field
-        :(m.$field * x)
-    end...)
-    @eval @generated *(x::Real, m::$type) = Expr(:call, $type, map(fieldnames($type)) do field
-        :(x * m.$field)
-    end...)
-    @eval @generated /(m::$type, x::Real) = Expr(:call, $type, map(fieldnames($type)) do field
-        :(m.$field / x)
-    end...)
+    @eval *(m::$type, x::Real) =
+        $type((x * getfield(m, field) for field in fieldnames($type))...)
+    @eval *(x::Real, m::$type) =
+        $type((getfield(m, field) * x for field in fieldnames($type))...)
+    @eval /(m::$type, x::Real) =
+        $type((getfield(m, field) / x for field in fieldnames($type))...)
 end
 
 function _basisreduce(arr::Vector{Char})
@@ -49,9 +45,8 @@ function _basisreduce(arr::Vector{Char})
     sign, Symbol(String(res)), Tuple(count .÷ 2)
 end
 _basisreduce(a::Symbol) = _basisreduce(collect(String(a)[2:end]))
-_basisreduce(a::Symbol, b::Symbol) = _basisreduce(
-    collect(String(a)[2:end] * String(b)[2:end]),
-)
+_basisreduce(a::Symbol, b::Symbol) =
+    _basisreduce(collect(String(a)[2:end] * String(b)[2:end]))
 _grade(a::Symbol) = length(unique(String(a))) - 1
 _dual(a::Symbol) = _basisreduce(a, only(grade_basis(D)))[1:2]
 

@@ -1,5 +1,4 @@
 export AbstractMVec, AbstractEVec
-export ⋆, ⋅, ∧, ×, ∨
 
 abstract type AbstractMVec{T<:Real} <: Number end
 abstract type AbstractEVec{T<:Real} <: AbstractMVec{T} end
@@ -11,38 +10,35 @@ function grade_basis(grade)
     basis[findall(sym -> length(String(sym)) - 1 in grade, basis)]
 end
 
+# constructors
 for (type, grade) in type_grade
     @eval export $type
     @eval struct $type{T<:Real} <: $(all(iseven.(grade)) ? AbstractEVec : AbstractMVec){T}
         $(map(sym -> :($sym::T), grade_basis(grade))...)
     end
-
-    if length(grade_basis(grade)) > 1
-        @eval $type(args::Vararg{Real,fieldcount($type)}) =
-            $type(promote(args...)...)
-            
-        @eval $type(x::T) where {T<:Real} = $type{T}(x)
-        @eval $type{T}(x::Real) where {T<:Real} = $type{T}(
-            (
-                field == Symbol(basis_char) ? x : zero(T) for
-                field in fieldnames($type)
-            )...,
-        )
-    end
-    @eval $type(m::AbstractMVec{T}) where {T} = $type{T}(m)
-    @eval $type{T}(m::M) where {T<:Real,M<:AbstractMVec} = $type{T}(
-        (
-            hasfield(M, field) ? getfield(m, field) : zero(T) for
-            field in fieldnames($type)
-        )...,
-    )
-
-    @eval Base.widen(::Type{$type{T}}) where {T} = $type{widen(T)}
-    @eval Base.float(::Type{$type{T}}) where {T<:AbstractFloat} = $type{T}
-    @eval Base.float(::Type{$type{T}}) where {T} = $type{float(T)}
+    @eval $type(m::$type) = m
+    @eval $type{T}(m::$type) where {T<:Real} = $type{T}(m)
 end
 
 # promotion
+for (type, grade) in type_grade
+    if 0 in grade
+        @eval $type(x::T) where {T<:Real} = $type{T}(x)
+        @eval @generated $type{T}(x::Real) where {T<:Real} = Expr(:call, $type{T},
+            map(fieldnames($type)) do field
+                field == Symbol(basis_char) ? :(x) : 0
+        end...)
+    end
+    for (type2, grade2) in type_grade
+        if grade2 in grade && type2 != type
+            @eval $type(m::$type2{T}) where {T} = $type{T}(m::$type2)
+            @eval @generated $type{T}(m::$type2) where {T<:Real} = Expr(:call, $type{T},
+                map(fieldnames($type)) do field
+                    hasfield($type2, field) ? :(m.$field) : 0
+            end...)
+        end
+    end
+end
 function Base.promote_rule(
     ::Type{E},
     ::Type{S},
@@ -98,3 +94,8 @@ Base.in(m::AbstractMVec, r::AbstractRange{<:Real}) = isreal(m) && real(m) in r
 Base.flipsign(m::AbstractMVec, x::Real) = ifelse(signbit(x), -m, m)
 Base.bswap(m::T) where {T<:AbstractMVec} =
     T((bswap(getfield(m, name)) for name in fieldnames(T))...)
+for type in keys(type_grade)
+    @eval Base.widen(::Type{$type{T}}) where {T} = $type{widen(T)}
+    @eval Base.float(::Type{$type{T}}) where {T<:AbstractFloat} = $type{T}
+    @eval Base.float(::Type{$type{T}}) where {T} = $type{float(T)}
+end

@@ -10,7 +10,8 @@ function direction(v::AbstractVector)
     @assert length(v) == 3
     point(v..., 0)
 end
-rotaxis(vx::Real, vy::Real, vz::Real, px::Real, py::Real, pz::Real) = normalize(direction(vx, vy, vz)) ∨ point(px, py, pz)
+rotaxis(vx::Real, vy::Real, vz::Real, px::Real, py::Real, pz::Real) =
+    normalize(direction(vx, vy, vz)) ∨ point(px, py, pz)
 rotaxis(vx::Real, vy::Real, vz::Real) = normalize(direction(vx, vy, vz)) ∨ point(0, 0, 0)
 rotaxis(v::AbstractVector, p::AbstractVector) = normalize(direction(v)) ∨ point(p)
 rotaxis(v::AbstractVector) = normalize(direction(v)) ∨ point(0, 0, 0)

@@ -1,3 +1,5 @@
+export >>>
+
 # norm and inverse
 Base.abs2(m::AbstractMVec) = real(m ⋅ ~m)
 Base.abs(m::AbstractMVec) = sqrt(abs(abs2(m)))
@@ -23,3 +25,5 @@ function Base.exp(V::PVec{T}) where {T}
 end
 Base.exp(S::PScalar{T}) where {T} = one(T) + S
 Base.exp(m::EVec{T}) where {T} = exp(real(m)) * exp(BiVec{T}(m)) * exp(PScalar{T}(m))
+
+>>>(m::AbstractEVec, v::T) where {T<:AbstractMVec} = T(m * v * ~m)
